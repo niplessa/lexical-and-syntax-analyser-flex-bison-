@@ -1,0 +1,2672 @@
+Grammar
+
+    0 $accept: program $end
+
+    1 program: header declarations subprograms comp_statement T_DOT
+
+    2 header: T_PROGRAM T_ID T_SEMI
+
+    3 declarations: constdefs typedefs vardefs
+
+    4 constdefs: T_CONST constant_defs T_SEMI
+    5          | %empty
+
+    6 constant_defs: constant_defs T_SEMI T_ID T_EQU expression
+    7              | T_ID T_EQU expression
+
+    8 expression: expression T_RELOP expression
+    9           | expression T_EQU expression
+   10           | expression T_OROP expression
+   11           | expression T_ADDOP expression
+   12           | expression T_MULDIVANDOP expression
+   13           | T_ADDOP expression
+   14           | T_NOTOP expression
+   15           | variable
+   16           | T_ID T_LPAREN expressions T_RPAREN
+   17           | T_LENGTH T_LPAREN expression T_RPAREN
+   18           | constant
+   19           | T_LPAREN expression T_RPAREN
+
+   20 variable: T_ID
+   21         | variable T_LBRACK expressions T_RBRACK
+
+   22 expressions: expressions T_COMMA expression
+   23            | expression
+
+   24 constant: T_ICONST
+   25         | T_RCONST
+   26         | T_BCONST
+   27         | T_CCONST
+   28         | T_SCONST
+
+   29 typedefs: T_TYPE type_defs T_SEMI
+   30         | %empty
+
+   31 type_defs: type_defs T_SEMI T_ID T_EQU type_def
+   32          | T_ID T_EQU type_def
+
+   33 type_def: T_ARRAY T_LBRACK dims T_RBRACK T_OF typename
+   34         | T_LPAREN identifiers T_RPAREN
+   35         | limit T_DOTDOT limit
+
+   36 dims: dims T_COMMA limits
+   37     | limits
+
+   38 limits: limit T_DOTDOT limit
+   39       | T_ID
+
+   40 limit: sign T_ICONST
+   41      | T_CCONST
+   42      | T_BCONST
+   43      | T_ADDOP T_ID
+   44      | T_ID
+
+   45 sign: T_ADDOP
+   46     | %empty
+
+   47 typename: standard_type
+   48         | T_ID
+
+   49 standard_type: T_INTEGER
+   50              | T_REAL
+   51              | T_BOOLEAN
+   52              | T_CHAR
+   53              | T_STRING
+
+   54 vardefs: T_VAR variable_defs T_SEMI
+   55        | %empty
+
+   56 variable_defs: variable_defs T_SEMI identifiers T_COLON typename
+   57              | identifiers T_COLON typename
+
+   58 identifiers: identifiers T_COMMA T_ID
+   59            | T_ID
+
+   60 subprograms: subprograms subprogram T_SEMI
+   61            | %empty
+
+   62 subprogram: sub_header T_SEMI T_FORWARD
+   63           | sub_header T_SEMI declarations subprograms comp_statement
+
+   64 sub_header: T_FUNCTION T_ID formal_parameters T_COLON typename
+   65           | T_PROCEDURE T_ID formal_parameters
+   66           | T_FUNCTION
+
+   67 formal_parameters: T_LPAREN parameter_list T_RPAREN
+   68                  | %empty
+
+   69 parameter_list: parameter_list T_SEMI pass identifiers T_COLON typename
+   70               | pass identifiers T_COLON typename
+
+   71 pass: T_VAR
+   72     | %empty
+
+   73 comp_statement: T_BEGIN statements T_END
+
+   74 statements: statements T_SEMI statement
+   75           | statement
+
+   76 statement: assignment
+   77          | if_statement
+   78          | while_statement
+   79          | for_statement
+   80          | subprogram_call
+   81          | io_statement
+   82          | comp_statement
+   83          | %empty
+
+   84 assignment: variable T_ASSIGN expression
+
+   85 if_statement: T_IF expression T_THEN statement
+   86             | T_IF expression T_THEN statement T_ELSE statement
+   87             | error
+
+   88 $@1: %empty
+
+   89 while_statement: T_WHILE expression $@1 T_DO statement
+
+   90 $@2: %empty
+
+   91 for_statement: T_FOR T_ID T_ASSIGN iter_space $@2 T_DO statement
+
+   92 iter_space: expression T_TO expression
+   93           | expression T_DOWNTO expression
+
+   94 subprogram_call: T_ID
+   95                | T_ID T_LPAREN expression T_RPAREN
+
+   96 io_statement: T_READ T_LPAREN read_list T_RPAREN
+   97             | T_WRITE T_LPAREN write_list T_RPAREN
+
+   98 read_list: read_list T_COMMA read_item
+   99          | read_item
+
+  100 read_item: variable
+
+  101 write_list: write_list T_COMMA write_item
+  102           | write_item
+
+  103 write_item: expression
+
+
+Terminals, with rules where they appear
+
+    $end (0) 0
+    error (256) 87
+    T_PROGRAM <string> (258) 2
+    T_CONST <string> (259) 4
+    T_TYPE <string> (260) 29
+    T_ARRAY <string> (261) 33
+    T_OF <string> (262) 33
+    T_VAR <string> (263) 54 71
+    T_FORWARD <string> (264) 62
+    T_FUNCTION <string> (265) 64 66
+    T_PROCEDURE <string> (266) 65
+    T_INTEGER <string> (267) 49
+    T_REAL <string> (268) 50
+    T_BOOLEAN <string> (269) 51
+    T_CHAR <string> (270) 52
+    T_STRING <string> (271) 53
+    T_BEGIN <string> (272) 73
+    T_END <string> (273) 73
+    T_IF <string> (274) 85 86
+    T_THEN <string> (275) 85 86
+    T_ELSE <string> (276) 86
+    T_WHILE <string> (277) 89
+    T_DO <string> (278) 89 91
+    T_FOR <string> (279) 91
+    T_DOWNTO <string> (280) 93
+    T_TO <string> (281) 92
+    T_READ <string> (282) 96
+    T_WRITE <string> (283) 97
+    T_LENGTH <string> (284) 17
+    T_ID <string> (285) 2 6 7 16 20 31 32 39 43 44 48 58 59 64 65 91 94 95
+    T_SCONST <string> (286) 28
+    T_ICONST <integer> (287) 24 40
+    T_RCONST <real> (288) 25
+    T_BCONST <boolean> (289) 26 42
+    T_CCONST <character> (290) 27 41
+    T_RELOP <string> (291) 8
+    T_ADDOP <string> (292) 11 13 43 45
+    T_OROP <string> (293) 10
+    T_MULDIVANDOP <string> (294) 12
+    T_NOTOP <string> (295) 14
+    T_LPAREN <string> (296) 16 17 19 34 67 95 96 97
+    T_RPAREN <string> (297) 16 17 19 34 67 95 96 97
+    T_SEMI <string> (298) 2 4 6 29 31 54 56 60 62 63 69 74
+    T_DOT <string> (299) 1
+    T_COMMA <string> (300) 22 36 58 98 101
+    T_COLON <string> (301) 56 57 64 69 70
+    T_LBRACK <string> (302) 21 33
+    T_RBRACK <string> (303) 21 33
+    T_ASSIGN <string> (304) 84 91
+    T_DOTDOT <string> (305) 35 38
+    T_EQU <string> (306) 6 7 9 31 32
+
+
+Nonterminals, with rules where they appear
+
+    $accept (52)
+        on left: 0
+    program (53)
+        on left: 1
+        on right: 0
+    header (54)
+        on left: 2
+        on right: 1
+    declarations (55)
+        on left: 3
+        on right: 1 63
+    constdefs (56)
+        on left: 4 5
+        on right: 3
+    constant_defs (57)
+        on left: 6 7
+        on right: 4 6
+    expression (58)
+        on left: 8 9 10 11 12 13 14 15 16 17 18 19
+        on right: 6 7 8 9 10 11 12 13 14 17 19 22 23 84 85 86 89 92 93 95 103
+    variable (59)
+        on left: 20 21
+        on right: 15 21 84 100
+    expressions (60)
+        on left: 22 23
+        on right: 16 21 22
+    constant (61)
+        on left: 24 25 26 27 28
+        on right: 18
+    typedefs (62)
+        on left: 29 30
+        on right: 3
+    type_defs (63)
+        on left: 31 32
+        on right: 29 31
+    type_def (64)
+        on left: 33 34 35
+        on right: 31 32
+    dims (65)
+        on left: 36 37
+        on right: 33 36
+    limits (66)
+        on left: 38 39
+        on right: 36 37
+    limit (67)
+        on left: 40 41 42 43 44
+        on right: 35 38
+    sign (68)
+        on left: 45 46
+        on right: 40
+    typename (69)
+        on left: 47 48
+        on right: 33 56 57 64 69 70
+    standard_type (70)
+        on left: 49 50 51 52 53
+        on right: 47
+    vardefs (71)
+        on left: 54 55
+        on right: 3
+    variable_defs (72)
+        on left: 56 57
+        on right: 54 56
+    identifiers (73)
+        on left: 58 59
+        on right: 34 56 57 58 69 70
+    subprograms (74)
+        on left: 60 61
+        on right: 1 60 63
+    subprogram (75)
+        on left: 62 63
+        on right: 60
+    sub_header (76)
+        on left: 64 65 66
+        on right: 62 63
+    formal_parameters (77)
+        on left: 67 68
+        on right: 64 65
+    parameter_list (78)
+        on left: 69 70
+        on right: 67 69
+    pass (79)
+        on left: 71 72
+        on right: 69 70
+    comp_statement (80)
+        on left: 73
+        on right: 1 63 82
+    statements (81)
+        on left: 74 75
+        on right: 73 74
+    statement (82)
+        on left: 76 77 78 79 80 81 82 83
+        on right: 74 75 85 86 89 91
+    assignment (83)
+        on left: 84
+        on right: 76
+    if_statement (84)
+        on left: 85 86 87
+        on right: 77
+    while_statement (85)
+        on left: 89
+        on right: 78
+    $@1 (86)
+        on left: 88
+        on right: 89
+    for_statement (87)
+        on left: 91
+        on right: 79
+    $@2 (88)
+        on left: 90
+        on right: 91
+    iter_space (89)
+        on left: 92 93
+        on right: 91
+    subprogram_call (90)
+        on left: 94 95
+        on right: 80
+    io_statement (91)
+        on left: 96 97
+        on right: 81
+    read_list (92)
+        on left: 98 99
+        on right: 96 98
+    read_item (93)
+        on left: 100
+        on right: 98 99
+    write_list (94)
+        on left: 101 102
+        on right: 97 101
+    write_item (95)
+        on left: 103
+        on right: 101 102
+
+
+State 0
+
+    0 $accept: . program $end
+
+    T_PROGRAM  shift, and go to state 1
+
+    program  go to state 2
+    header   go to state 3
+
+
+State 1
+
+    2 header: T_PROGRAM . T_ID T_SEMI
+
+    T_ID  shift, and go to state 4
+
+
+State 2
+
+    0 $accept: program . $end
+
+    $end  shift, and go to state 5
+
+
+State 3
+
+    1 program: header . declarations subprograms comp_statement T_DOT
+
+    T_CONST  shift, and go to state 6
+
+    $default  reduce using rule 5 (constdefs)
+
+    declarations  go to state 7
+    constdefs     go to state 8
+
+
+State 4
+
+    2 header: T_PROGRAM T_ID . T_SEMI
+
+    T_SEMI  shift, and go to state 9
+
+
+State 5
+
+    0 $accept: program $end .
+
+    $default  accept
+
+
+State 6
+
+    4 constdefs: T_CONST . constant_defs T_SEMI
+
+    T_ID  shift, and go to state 10
+
+    constant_defs  go to state 11
+
+
+State 7
+
+    1 program: header declarations . subprograms comp_statement T_DOT
+
+    $default  reduce using rule 61 (subprograms)
+
+    subprograms  go to state 12
+
+
+State 8
+
+    3 declarations: constdefs . typedefs vardefs
+
+    T_TYPE  shift, and go to state 13
+
+    $default  reduce using rule 30 (typedefs)
+
+    typedefs  go to state 14
+
+
+State 9
+
+    2 header: T_PROGRAM T_ID T_SEMI .
+
+    $default  reduce using rule 2 (header)
+
+
+State 10
+
+    7 constant_defs: T_ID . T_EQU expression
+
+    T_EQU  shift, and go to state 15
+
+
+State 11
+
+    4 constdefs: T_CONST constant_defs . T_SEMI
+    6 constant_defs: constant_defs . T_SEMI T_ID T_EQU expression
+
+    T_SEMI  shift, and go to state 16
+
+
+State 12
+
+    1 program: header declarations subprograms . comp_statement T_DOT
+   60 subprograms: subprograms . subprogram T_SEMI
+
+    T_FUNCTION   shift, and go to state 17
+    T_PROCEDURE  shift, and go to state 18
+    T_BEGIN      shift, and go to state 19
+
+    subprogram      go to state 20
+    sub_header      go to state 21
+    comp_statement  go to state 22
+
+
+State 13
+
+   29 typedefs: T_TYPE . type_defs T_SEMI
+
+    T_ID  shift, and go to state 23
+
+    type_defs  go to state 24
+
+
+State 14
+
+    3 declarations: constdefs typedefs . vardefs
+
+    T_VAR  shift, and go to state 25
+
+    $default  reduce using rule 55 (vardefs)
+
+    vardefs  go to state 26
+
+
+State 15
+
+    7 constant_defs: T_ID T_EQU . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 37
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 16
+
+    4 constdefs: T_CONST constant_defs T_SEMI .
+    6 constant_defs: constant_defs T_SEMI . T_ID T_EQU expression
+
+    T_ID  shift, and go to state 40
+
+    $default  reduce using rule 4 (constdefs)
+
+
+State 17
+
+   64 sub_header: T_FUNCTION . T_ID formal_parameters T_COLON typename
+   66           | T_FUNCTION .
+
+    T_ID  shift, and go to state 41
+
+    $default  reduce using rule 66 (sub_header)
+
+
+State 18
+
+   65 sub_header: T_PROCEDURE . T_ID formal_parameters
+
+    T_ID  shift, and go to state 42
+
+
+State 19
+
+   73 comp_statement: T_BEGIN . statements T_END
+
+    error    shift, and go to state 43
+    T_BEGIN  shift, and go to state 19
+    T_IF     shift, and go to state 44
+    T_WHILE  shift, and go to state 45
+    T_FOR    shift, and go to state 46
+    T_READ   shift, and go to state 47
+    T_WRITE  shift, and go to state 48
+    T_ID     shift, and go to state 49
+
+    T_END   reduce using rule 83 (statement)
+    T_SEMI  reduce using rule 83 (statement)
+
+    variable         go to state 50
+    comp_statement   go to state 51
+    statements       go to state 52
+    statement        go to state 53
+    assignment       go to state 54
+    if_statement     go to state 55
+    while_statement  go to state 56
+    for_statement    go to state 57
+    subprogram_call  go to state 58
+    io_statement     go to state 59
+
+
+State 20
+
+   60 subprograms: subprograms subprogram . T_SEMI
+
+    T_SEMI  shift, and go to state 60
+
+
+State 21
+
+   62 subprogram: sub_header . T_SEMI T_FORWARD
+   63           | sub_header . T_SEMI declarations subprograms comp_statement
+
+    T_SEMI  shift, and go to state 61
+
+
+State 22
+
+    1 program: header declarations subprograms comp_statement . T_DOT
+
+    T_DOT  shift, and go to state 62
+
+
+State 23
+
+   32 type_defs: T_ID . T_EQU type_def
+
+    T_EQU  shift, and go to state 63
+
+
+State 24
+
+   29 typedefs: T_TYPE type_defs . T_SEMI
+   31 type_defs: type_defs . T_SEMI T_ID T_EQU type_def
+
+    T_SEMI  shift, and go to state 64
+
+
+State 25
+
+   54 vardefs: T_VAR . variable_defs T_SEMI
+
+    T_ID  shift, and go to state 65
+
+    variable_defs  go to state 66
+    identifiers    go to state 67
+
+
+State 26
+
+    3 declarations: constdefs typedefs vardefs .
+
+    $default  reduce using rule 3 (declarations)
+
+
+State 27
+
+   17 expression: T_LENGTH . T_LPAREN expression T_RPAREN
+
+    T_LPAREN  shift, and go to state 68
+
+
+State 28
+
+   16 expression: T_ID . T_LPAREN expressions T_RPAREN
+   20 variable: T_ID .
+
+    T_LPAREN  shift, and go to state 69
+
+    $default  reduce using rule 20 (variable)
+
+
+State 29
+
+   28 constant: T_SCONST .
+
+    $default  reduce using rule 28 (constant)
+
+
+State 30
+
+   24 constant: T_ICONST .
+
+    $default  reduce using rule 24 (constant)
+
+
+State 31
+
+   25 constant: T_RCONST .
+
+    $default  reduce using rule 25 (constant)
+
+
+State 32
+
+   26 constant: T_BCONST .
+
+    $default  reduce using rule 26 (constant)
+
+
+State 33
+
+   27 constant: T_CCONST .
+
+    $default  reduce using rule 27 (constant)
+
+
+State 34
+
+   13 expression: T_ADDOP . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 70
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 35
+
+   14 expression: T_NOTOP . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 71
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 36
+
+   19 expression: T_LPAREN . expression T_RPAREN
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 72
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 37
+
+    7 constant_defs: T_ID T_EQU expression .
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 7 (constant_defs)
+
+
+State 38
+
+   15 expression: variable .
+   21 variable: variable . T_LBRACK expressions T_RBRACK
+
+    T_LBRACK  shift, and go to state 78
+
+    $default  reduce using rule 15 (expression)
+
+
+State 39
+
+   18 expression: constant .
+
+    $default  reduce using rule 18 (expression)
+
+
+State 40
+
+    6 constant_defs: constant_defs T_SEMI T_ID . T_EQU expression
+
+    T_EQU  shift, and go to state 79
+
+
+State 41
+
+   64 sub_header: T_FUNCTION T_ID . formal_parameters T_COLON typename
+
+    T_LPAREN  shift, and go to state 80
+
+    $default  reduce using rule 68 (formal_parameters)
+
+    formal_parameters  go to state 81
+
+
+State 42
+
+   65 sub_header: T_PROCEDURE T_ID . formal_parameters
+
+    T_LPAREN  shift, and go to state 80
+
+    $default  reduce using rule 68 (formal_parameters)
+
+    formal_parameters  go to state 82
+
+
+State 43
+
+   87 if_statement: error .
+
+    $default  reduce using rule 87 (if_statement)
+
+
+State 44
+
+   85 if_statement: T_IF . expression T_THEN statement
+   86             | T_IF . expression T_THEN statement T_ELSE statement
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 83
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 45
+
+   89 while_statement: T_WHILE . expression $@1 T_DO statement
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 84
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 46
+
+   91 for_statement: T_FOR . T_ID T_ASSIGN iter_space $@2 T_DO statement
+
+    T_ID  shift, and go to state 85
+
+
+State 47
+
+   96 io_statement: T_READ . T_LPAREN read_list T_RPAREN
+
+    T_LPAREN  shift, and go to state 86
+
+
+State 48
+
+   97 io_statement: T_WRITE . T_LPAREN write_list T_RPAREN
+
+    T_LPAREN  shift, and go to state 87
+
+
+State 49
+
+   20 variable: T_ID .
+   94 subprogram_call: T_ID .
+   95                | T_ID . T_LPAREN expression T_RPAREN
+
+    T_LPAREN  shift, and go to state 88
+
+    T_LBRACK  reduce using rule 20 (variable)
+    T_ASSIGN  reduce using rule 20 (variable)
+    $default  reduce using rule 94 (subprogram_call)
+
+
+State 50
+
+   21 variable: variable . T_LBRACK expressions T_RBRACK
+   84 assignment: variable . T_ASSIGN expression
+
+    T_LBRACK  shift, and go to state 78
+    T_ASSIGN  shift, and go to state 89
+
+
+State 51
+
+   82 statement: comp_statement .
+
+    $default  reduce using rule 82 (statement)
+
+
+State 52
+
+   73 comp_statement: T_BEGIN statements . T_END
+   74 statements: statements . T_SEMI statement
+
+    T_END   shift, and go to state 90
+    T_SEMI  shift, and go to state 91
+
+
+State 53
+
+   75 statements: statement .
+
+    $default  reduce using rule 75 (statements)
+
+
+State 54
+
+   76 statement: assignment .
+
+    $default  reduce using rule 76 (statement)
+
+
+State 55
+
+   77 statement: if_statement .
+
+    $default  reduce using rule 77 (statement)
+
+
+State 56
+
+   78 statement: while_statement .
+
+    $default  reduce using rule 78 (statement)
+
+
+State 57
+
+   79 statement: for_statement .
+
+    $default  reduce using rule 79 (statement)
+
+
+State 58
+
+   80 statement: subprogram_call .
+
+    $default  reduce using rule 80 (statement)
+
+
+State 59
+
+   81 statement: io_statement .
+
+    $default  reduce using rule 81 (statement)
+
+
+State 60
+
+   60 subprograms: subprograms subprogram T_SEMI .
+
+    $default  reduce using rule 60 (subprograms)
+
+
+State 61
+
+   62 subprogram: sub_header T_SEMI . T_FORWARD
+   63           | sub_header T_SEMI . declarations subprograms comp_statement
+
+    T_CONST    shift, and go to state 6
+    T_FORWARD  shift, and go to state 92
+
+    $default  reduce using rule 5 (constdefs)
+
+    declarations  go to state 93
+    constdefs     go to state 8
+
+
+State 62
+
+    1 program: header declarations subprograms comp_statement T_DOT .
+
+    $default  reduce using rule 1 (program)
+
+
+State 63
+
+   32 type_defs: T_ID T_EQU . type_def
+
+    T_ARRAY   shift, and go to state 94
+    T_ID      shift, and go to state 95
+    T_BCONST  shift, and go to state 96
+    T_CCONST  shift, and go to state 97
+    T_ADDOP   shift, and go to state 98
+    T_LPAREN  shift, and go to state 99
+
+    $default  reduce using rule 46 (sign)
+
+    type_def  go to state 100
+    limit     go to state 101
+    sign      go to state 102
+
+
+State 64
+
+   29 typedefs: T_TYPE type_defs T_SEMI .
+   31 type_defs: type_defs T_SEMI . T_ID T_EQU type_def
+
+    T_ID  shift, and go to state 103
+
+    $default  reduce using rule 29 (typedefs)
+
+
+State 65
+
+   59 identifiers: T_ID .
+
+    $default  reduce using rule 59 (identifiers)
+
+
+State 66
+
+   54 vardefs: T_VAR variable_defs . T_SEMI
+   56 variable_defs: variable_defs . T_SEMI identifiers T_COLON typename
+
+    T_SEMI  shift, and go to state 104
+
+
+State 67
+
+   57 variable_defs: identifiers . T_COLON typename
+   58 identifiers: identifiers . T_COMMA T_ID
+
+    T_COMMA  shift, and go to state 105
+    T_COLON  shift, and go to state 106
+
+
+State 68
+
+   17 expression: T_LENGTH T_LPAREN . expression T_RPAREN
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 107
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 69
+
+   16 expression: T_ID T_LPAREN . expressions T_RPAREN
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression   go to state 108
+    variable     go to state 38
+    expressions  go to state 109
+    constant     go to state 39
+
+
+State 70
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   13           | T_ADDOP expression .
+
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 13 (expression)
+
+
+State 71
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   14           | T_NOTOP expression .
+
+    T_ADDOP        shift, and go to state 74
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 14 (expression)
+
+
+State 72
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   19           | T_LPAREN expression . T_RPAREN
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_RPAREN       shift, and go to state 110
+    T_EQU          shift, and go to state 77
+
+
+State 73
+
+    8 expression: expression T_RELOP . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 111
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 74
+
+   11 expression: expression T_ADDOP . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 112
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 75
+
+   10 expression: expression T_OROP . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 113
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 76
+
+   12 expression: expression T_MULDIVANDOP . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 114
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 77
+
+    9 expression: expression T_EQU . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 115
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 78
+
+   21 variable: variable T_LBRACK . expressions T_RBRACK
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression   go to state 108
+    variable     go to state 38
+    expressions  go to state 116
+    constant     go to state 39
+
+
+State 79
+
+    6 constant_defs: constant_defs T_SEMI T_ID T_EQU . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 117
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 80
+
+   67 formal_parameters: T_LPAREN . parameter_list T_RPAREN
+
+    T_VAR  shift, and go to state 118
+
+    $default  reduce using rule 72 (pass)
+
+    parameter_list  go to state 119
+    pass            go to state 120
+
+
+State 81
+
+   64 sub_header: T_FUNCTION T_ID formal_parameters . T_COLON typename
+
+    T_COLON  shift, and go to state 121
+
+
+State 82
+
+   65 sub_header: T_PROCEDURE T_ID formal_parameters .
+
+    $default  reduce using rule 65 (sub_header)
+
+
+State 83
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   85 if_statement: T_IF expression . T_THEN statement
+   86             | T_IF expression . T_THEN statement T_ELSE statement
+
+    T_THEN         shift, and go to state 122
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+
+State 84
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   89 while_statement: T_WHILE expression . $@1 T_DO statement
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 88 ($@1)
+
+    $@1  go to state 123
+
+
+State 85
+
+   91 for_statement: T_FOR T_ID . T_ASSIGN iter_space $@2 T_DO statement
+
+    T_ASSIGN  shift, and go to state 124
+
+
+State 86
+
+   96 io_statement: T_READ T_LPAREN . read_list T_RPAREN
+
+    T_ID  shift, and go to state 125
+
+    variable   go to state 126
+    read_list  go to state 127
+    read_item  go to state 128
+
+
+State 87
+
+   97 io_statement: T_WRITE T_LPAREN . write_list T_RPAREN
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 129
+    variable    go to state 38
+    constant    go to state 39
+    write_list  go to state 130
+    write_item  go to state 131
+
+
+State 88
+
+   95 subprogram_call: T_ID T_LPAREN . expression T_RPAREN
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 132
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 89
+
+   84 assignment: variable T_ASSIGN . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 133
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 90
+
+   73 comp_statement: T_BEGIN statements T_END .
+
+    $default  reduce using rule 73 (comp_statement)
+
+
+State 91
+
+   74 statements: statements T_SEMI . statement
+
+    error    shift, and go to state 43
+    T_BEGIN  shift, and go to state 19
+    T_IF     shift, and go to state 44
+    T_WHILE  shift, and go to state 45
+    T_FOR    shift, and go to state 46
+    T_READ   shift, and go to state 47
+    T_WRITE  shift, and go to state 48
+    T_ID     shift, and go to state 49
+
+    T_END   reduce using rule 83 (statement)
+    T_SEMI  reduce using rule 83 (statement)
+
+    variable         go to state 50
+    comp_statement   go to state 51
+    statement        go to state 134
+    assignment       go to state 54
+    if_statement     go to state 55
+    while_statement  go to state 56
+    for_statement    go to state 57
+    subprogram_call  go to state 58
+    io_statement     go to state 59
+
+
+State 92
+
+   62 subprogram: sub_header T_SEMI T_FORWARD .
+
+    $default  reduce using rule 62 (subprogram)
+
+
+State 93
+
+   63 subprogram: sub_header T_SEMI declarations . subprograms comp_statement
+
+    $default  reduce using rule 61 (subprograms)
+
+    subprograms  go to state 135
+
+
+State 94
+
+   33 type_def: T_ARRAY . T_LBRACK dims T_RBRACK T_OF typename
+
+    T_LBRACK  shift, and go to state 136
+
+
+State 95
+
+   44 limit: T_ID .
+
+    $default  reduce using rule 44 (limit)
+
+
+State 96
+
+   42 limit: T_BCONST .
+
+    $default  reduce using rule 42 (limit)
+
+
+State 97
+
+   41 limit: T_CCONST .
+
+    $default  reduce using rule 41 (limit)
+
+
+State 98
+
+   43 limit: T_ADDOP . T_ID
+   45 sign: T_ADDOP .
+
+    T_ID  shift, and go to state 137
+
+    $default  reduce using rule 45 (sign)
+
+
+State 99
+
+   34 type_def: T_LPAREN . identifiers T_RPAREN
+
+    T_ID  shift, and go to state 65
+
+    identifiers  go to state 138
+
+
+State 100
+
+   32 type_defs: T_ID T_EQU type_def .
+
+    $default  reduce using rule 32 (type_defs)
+
+
+State 101
+
+   35 type_def: limit . T_DOTDOT limit
+
+    T_DOTDOT  shift, and go to state 139
+
+
+State 102
+
+   40 limit: sign . T_ICONST
+
+    T_ICONST  shift, and go to state 140
+
+
+State 103
+
+   31 type_defs: type_defs T_SEMI T_ID . T_EQU type_def
+
+    T_EQU  shift, and go to state 141
+
+
+State 104
+
+   54 vardefs: T_VAR variable_defs T_SEMI .
+   56 variable_defs: variable_defs T_SEMI . identifiers T_COLON typename
+
+    T_ID  shift, and go to state 65
+
+    $default  reduce using rule 54 (vardefs)
+
+    identifiers  go to state 142
+
+
+State 105
+
+   58 identifiers: identifiers T_COMMA . T_ID
+
+    T_ID  shift, and go to state 143
+
+
+State 106
+
+   57 variable_defs: identifiers T_COLON . typename
+
+    T_INTEGER  shift, and go to state 144
+    T_REAL     shift, and go to state 145
+    T_BOOLEAN  shift, and go to state 146
+    T_CHAR     shift, and go to state 147
+    T_STRING   shift, and go to state 148
+    T_ID       shift, and go to state 149
+
+    typename       go to state 150
+    standard_type  go to state 151
+
+
+State 107
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   17           | T_LENGTH T_LPAREN expression . T_RPAREN
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_RPAREN       shift, and go to state 152
+    T_EQU          shift, and go to state 77
+
+
+State 108
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   23 expressions: expression .
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 23 (expressions)
+
+
+State 109
+
+   16 expression: T_ID T_LPAREN expressions . T_RPAREN
+   22 expressions: expressions . T_COMMA expression
+
+    T_RPAREN  shift, and go to state 153
+    T_COMMA   shift, and go to state 154
+
+
+State 110
+
+   19 expression: T_LPAREN expression T_RPAREN .
+
+    $default  reduce using rule 19 (expression)
+
+
+State 111
+
+    8 expression: expression . T_RELOP expression
+    8           | expression T_RELOP expression .
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+
+    T_ADDOP        shift, and go to state 74
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    T_RELOP  error (nonassociative)
+
+    $default  reduce using rule 8 (expression)
+
+
+State 112
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   11           | expression T_ADDOP expression .
+   12           | expression . T_MULDIVANDOP expression
+
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 11 (expression)
+
+
+State 113
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   10           | expression T_OROP expression .
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 10 (expression)
+
+
+State 114
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   12           | expression T_MULDIVANDOP expression .
+
+    T_EQU  shift, and go to state 77
+
+    $default  reduce using rule 12 (expression)
+
+
+State 115
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+    9           | expression T_EQU expression .
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+
+    T_EQU  shift, and go to state 77
+
+    $default  reduce using rule 9 (expression)
+
+
+State 116
+
+   21 variable: variable T_LBRACK expressions . T_RBRACK
+   22 expressions: expressions . T_COMMA expression
+
+    T_COMMA   shift, and go to state 154
+    T_RBRACK  shift, and go to state 155
+
+
+State 117
+
+    6 constant_defs: constant_defs T_SEMI T_ID T_EQU expression .
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 6 (constant_defs)
+
+
+State 118
+
+   71 pass: T_VAR .
+
+    $default  reduce using rule 71 (pass)
+
+
+State 119
+
+   67 formal_parameters: T_LPAREN parameter_list . T_RPAREN
+   69 parameter_list: parameter_list . T_SEMI pass identifiers T_COLON typename
+
+    T_RPAREN  shift, and go to state 156
+    T_SEMI    shift, and go to state 157
+
+
+State 120
+
+   70 parameter_list: pass . identifiers T_COLON typename
+
+    T_ID  shift, and go to state 65
+
+    identifiers  go to state 158
+
+
+State 121
+
+   64 sub_header: T_FUNCTION T_ID formal_parameters T_COLON . typename
+
+    T_INTEGER  shift, and go to state 144
+    T_REAL     shift, and go to state 145
+    T_BOOLEAN  shift, and go to state 146
+    T_CHAR     shift, and go to state 147
+    T_STRING   shift, and go to state 148
+    T_ID       shift, and go to state 149
+
+    typename       go to state 159
+    standard_type  go to state 151
+
+
+State 122
+
+   85 if_statement: T_IF expression T_THEN . statement
+   86             | T_IF expression T_THEN . statement T_ELSE statement
+
+    error    shift, and go to state 43
+    T_BEGIN  shift, and go to state 19
+    T_IF     shift, and go to state 44
+    T_WHILE  shift, and go to state 45
+    T_FOR    shift, and go to state 46
+    T_READ   shift, and go to state 47
+    T_WRITE  shift, and go to state 48
+    T_ID     shift, and go to state 49
+
+    T_END   reduce using rule 83 (statement)
+    T_ELSE  reduce using rule 83 (statement)
+    T_SEMI  reduce using rule 83 (statement)
+
+    variable         go to state 50
+    comp_statement   go to state 51
+    statement        go to state 160
+    assignment       go to state 54
+    if_statement     go to state 55
+    while_statement  go to state 56
+    for_statement    go to state 57
+    subprogram_call  go to state 58
+    io_statement     go to state 59
+
+
+State 123
+
+   89 while_statement: T_WHILE expression $@1 . T_DO statement
+
+    T_DO  shift, and go to state 161
+
+
+State 124
+
+   91 for_statement: T_FOR T_ID T_ASSIGN . iter_space $@2 T_DO statement
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 162
+    variable    go to state 38
+    constant    go to state 39
+    iter_space  go to state 163
+
+
+State 125
+
+   20 variable: T_ID .
+
+    $default  reduce using rule 20 (variable)
+
+
+State 126
+
+   21 variable: variable . T_LBRACK expressions T_RBRACK
+  100 read_item: variable .
+
+    T_LBRACK  shift, and go to state 78
+
+    $default  reduce using rule 100 (read_item)
+
+
+State 127
+
+   96 io_statement: T_READ T_LPAREN read_list . T_RPAREN
+   98 read_list: read_list . T_COMMA read_item
+
+    T_RPAREN  shift, and go to state 164
+    T_COMMA   shift, and go to state 165
+
+
+State 128
+
+   99 read_list: read_item .
+
+    $default  reduce using rule 99 (read_list)
+
+
+State 129
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+  103 write_item: expression .
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 103 (write_item)
+
+
+State 130
+
+   97 io_statement: T_WRITE T_LPAREN write_list . T_RPAREN
+  101 write_list: write_list . T_COMMA write_item
+
+    T_RPAREN  shift, and go to state 166
+    T_COMMA   shift, and go to state 167
+
+
+State 131
+
+  102 write_list: write_item .
+
+    $default  reduce using rule 102 (write_list)
+
+
+State 132
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   95 subprogram_call: T_ID T_LPAREN expression . T_RPAREN
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_RPAREN       shift, and go to state 168
+    T_EQU          shift, and go to state 77
+
+
+State 133
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   84 assignment: variable T_ASSIGN expression .
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 84 (assignment)
+
+
+State 134
+
+   74 statements: statements T_SEMI statement .
+
+    $default  reduce using rule 74 (statements)
+
+
+State 135
+
+   60 subprograms: subprograms . subprogram T_SEMI
+   63 subprogram: sub_header T_SEMI declarations subprograms . comp_statement
+
+    T_FUNCTION   shift, and go to state 17
+    T_PROCEDURE  shift, and go to state 18
+    T_BEGIN      shift, and go to state 19
+
+    subprogram      go to state 20
+    sub_header      go to state 21
+    comp_statement  go to state 169
+
+
+State 136
+
+   33 type_def: T_ARRAY T_LBRACK . dims T_RBRACK T_OF typename
+
+    T_ID      shift, and go to state 170
+    T_BCONST  shift, and go to state 96
+    T_CCONST  shift, and go to state 97
+    T_ADDOP   shift, and go to state 98
+
+    $default  reduce using rule 46 (sign)
+
+    dims    go to state 171
+    limits  go to state 172
+    limit   go to state 173
+    sign    go to state 102
+
+
+State 137
+
+   43 limit: T_ADDOP T_ID .
+
+    $default  reduce using rule 43 (limit)
+
+
+State 138
+
+   34 type_def: T_LPAREN identifiers . T_RPAREN
+   58 identifiers: identifiers . T_COMMA T_ID
+
+    T_RPAREN  shift, and go to state 174
+    T_COMMA   shift, and go to state 105
+
+
+State 139
+
+   35 type_def: limit T_DOTDOT . limit
+
+    T_ID      shift, and go to state 95
+    T_BCONST  shift, and go to state 96
+    T_CCONST  shift, and go to state 97
+    T_ADDOP   shift, and go to state 98
+
+    $default  reduce using rule 46 (sign)
+
+    limit  go to state 175
+    sign   go to state 102
+
+
+State 140
+
+   40 limit: sign T_ICONST .
+
+    $default  reduce using rule 40 (limit)
+
+
+State 141
+
+   31 type_defs: type_defs T_SEMI T_ID T_EQU . type_def
+
+    T_ARRAY   shift, and go to state 94
+    T_ID      shift, and go to state 95
+    T_BCONST  shift, and go to state 96
+    T_CCONST  shift, and go to state 97
+    T_ADDOP   shift, and go to state 98
+    T_LPAREN  shift, and go to state 99
+
+    $default  reduce using rule 46 (sign)
+
+    type_def  go to state 176
+    limit     go to state 101
+    sign      go to state 102
+
+
+State 142
+
+   56 variable_defs: variable_defs T_SEMI identifiers . T_COLON typename
+   58 identifiers: identifiers . T_COMMA T_ID
+
+    T_COMMA  shift, and go to state 105
+    T_COLON  shift, and go to state 177
+
+
+State 143
+
+   58 identifiers: identifiers T_COMMA T_ID .
+
+    $default  reduce using rule 58 (identifiers)
+
+
+State 144
+
+   49 standard_type: T_INTEGER .
+
+    $default  reduce using rule 49 (standard_type)
+
+
+State 145
+
+   50 standard_type: T_REAL .
+
+    $default  reduce using rule 50 (standard_type)
+
+
+State 146
+
+   51 standard_type: T_BOOLEAN .
+
+    $default  reduce using rule 51 (standard_type)
+
+
+State 147
+
+   52 standard_type: T_CHAR .
+
+    $default  reduce using rule 52 (standard_type)
+
+
+State 148
+
+   53 standard_type: T_STRING .
+
+    $default  reduce using rule 53 (standard_type)
+
+
+State 149
+
+   48 typename: T_ID .
+
+    $default  reduce using rule 48 (typename)
+
+
+State 150
+
+   57 variable_defs: identifiers T_COLON typename .
+
+    $default  reduce using rule 57 (variable_defs)
+
+
+State 151
+
+   47 typename: standard_type .
+
+    $default  reduce using rule 47 (typename)
+
+
+State 152
+
+   17 expression: T_LENGTH T_LPAREN expression T_RPAREN .
+
+    $default  reduce using rule 17 (expression)
+
+
+State 153
+
+   16 expression: T_ID T_LPAREN expressions T_RPAREN .
+
+    $default  reduce using rule 16 (expression)
+
+
+State 154
+
+   22 expressions: expressions T_COMMA . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 178
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 155
+
+   21 variable: variable T_LBRACK expressions T_RBRACK .
+
+    $default  reduce using rule 21 (variable)
+
+
+State 156
+
+   67 formal_parameters: T_LPAREN parameter_list T_RPAREN .
+
+    $default  reduce using rule 67 (formal_parameters)
+
+
+State 157
+
+   69 parameter_list: parameter_list T_SEMI . pass identifiers T_COLON typename
+
+    T_VAR  shift, and go to state 118
+
+    $default  reduce using rule 72 (pass)
+
+    pass  go to state 179
+
+
+State 158
+
+   58 identifiers: identifiers . T_COMMA T_ID
+   70 parameter_list: pass identifiers . T_COLON typename
+
+    T_COMMA  shift, and go to state 105
+    T_COLON  shift, and go to state 180
+
+
+State 159
+
+   64 sub_header: T_FUNCTION T_ID formal_parameters T_COLON typename .
+
+    $default  reduce using rule 64 (sub_header)
+
+
+State 160
+
+   85 if_statement: T_IF expression T_THEN statement .
+   86             | T_IF expression T_THEN statement . T_ELSE statement
+
+    T_ELSE  shift, and go to state 181
+
+    $default  reduce using rule 85 (if_statement)
+
+
+State 161
+
+   89 while_statement: T_WHILE expression $@1 T_DO . statement
+
+    error    shift, and go to state 43
+    T_BEGIN  shift, and go to state 19
+    T_IF     shift, and go to state 44
+    T_WHILE  shift, and go to state 45
+    T_FOR    shift, and go to state 46
+    T_READ   shift, and go to state 47
+    T_WRITE  shift, and go to state 48
+    T_ID     shift, and go to state 49
+
+    T_END   reduce using rule 83 (statement)
+    T_ELSE  reduce using rule 83 (statement)
+    T_SEMI  reduce using rule 83 (statement)
+
+    variable         go to state 50
+    comp_statement   go to state 51
+    statement        go to state 182
+    assignment       go to state 54
+    if_statement     go to state 55
+    while_statement  go to state 56
+    for_statement    go to state 57
+    subprogram_call  go to state 58
+    io_statement     go to state 59
+
+
+State 162
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   92 iter_space: expression . T_TO expression
+   93           | expression . T_DOWNTO expression
+
+    T_DOWNTO       shift, and go to state 183
+    T_TO           shift, and go to state 184
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+
+State 163
+
+   91 for_statement: T_FOR T_ID T_ASSIGN iter_space . $@2 T_DO statement
+
+    $default  reduce using rule 90 ($@2)
+
+    $@2  go to state 185
+
+
+State 164
+
+   96 io_statement: T_READ T_LPAREN read_list T_RPAREN .
+
+    $default  reduce using rule 96 (io_statement)
+
+
+State 165
+
+   98 read_list: read_list T_COMMA . read_item
+
+    T_ID  shift, and go to state 125
+
+    variable   go to state 126
+    read_item  go to state 186
+
+
+State 166
+
+   97 io_statement: T_WRITE T_LPAREN write_list T_RPAREN .
+
+    $default  reduce using rule 97 (io_statement)
+
+
+State 167
+
+  101 write_list: write_list T_COMMA . write_item
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 129
+    variable    go to state 38
+    constant    go to state 39
+    write_item  go to state 187
+
+
+State 168
+
+   95 subprogram_call: T_ID T_LPAREN expression T_RPAREN .
+
+    $default  reduce using rule 95 (subprogram_call)
+
+
+State 169
+
+   63 subprogram: sub_header T_SEMI declarations subprograms comp_statement .
+
+    $default  reduce using rule 63 (subprogram)
+
+
+State 170
+
+   39 limits: T_ID .
+   44 limit: T_ID .
+
+    T_DOTDOT  reduce using rule 44 (limit)
+    $default  reduce using rule 39 (limits)
+
+
+State 171
+
+   33 type_def: T_ARRAY T_LBRACK dims . T_RBRACK T_OF typename
+   36 dims: dims . T_COMMA limits
+
+    T_COMMA   shift, and go to state 188
+    T_RBRACK  shift, and go to state 189
+
+
+State 172
+
+   37 dims: limits .
+
+    $default  reduce using rule 37 (dims)
+
+
+State 173
+
+   38 limits: limit . T_DOTDOT limit
+
+    T_DOTDOT  shift, and go to state 190
+
+
+State 174
+
+   34 type_def: T_LPAREN identifiers T_RPAREN .
+
+    $default  reduce using rule 34 (type_def)
+
+
+State 175
+
+   35 type_def: limit T_DOTDOT limit .
+
+    $default  reduce using rule 35 (type_def)
+
+
+State 176
+
+   31 type_defs: type_defs T_SEMI T_ID T_EQU type_def .
+
+    $default  reduce using rule 31 (type_defs)
+
+
+State 177
+
+   56 variable_defs: variable_defs T_SEMI identifiers T_COLON . typename
+
+    T_INTEGER  shift, and go to state 144
+    T_REAL     shift, and go to state 145
+    T_BOOLEAN  shift, and go to state 146
+    T_CHAR     shift, and go to state 147
+    T_STRING   shift, and go to state 148
+    T_ID       shift, and go to state 149
+
+    typename       go to state 191
+    standard_type  go to state 151
+
+
+State 178
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   22 expressions: expressions T_COMMA expression .
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 22 (expressions)
+
+
+State 179
+
+   69 parameter_list: parameter_list T_SEMI pass . identifiers T_COLON typename
+
+    T_ID  shift, and go to state 65
+
+    identifiers  go to state 192
+
+
+State 180
+
+   70 parameter_list: pass identifiers T_COLON . typename
+
+    T_INTEGER  shift, and go to state 144
+    T_REAL     shift, and go to state 145
+    T_BOOLEAN  shift, and go to state 146
+    T_CHAR     shift, and go to state 147
+    T_STRING   shift, and go to state 148
+    T_ID       shift, and go to state 149
+
+    typename       go to state 193
+    standard_type  go to state 151
+
+
+State 181
+
+   86 if_statement: T_IF expression T_THEN statement T_ELSE . statement
+
+    error    shift, and go to state 43
+    T_BEGIN  shift, and go to state 19
+    T_IF     shift, and go to state 44
+    T_WHILE  shift, and go to state 45
+    T_FOR    shift, and go to state 46
+    T_READ   shift, and go to state 47
+    T_WRITE  shift, and go to state 48
+    T_ID     shift, and go to state 49
+
+    T_END   reduce using rule 83 (statement)
+    T_ELSE  reduce using rule 83 (statement)
+    T_SEMI  reduce using rule 83 (statement)
+
+    variable         go to state 50
+    comp_statement   go to state 51
+    statement        go to state 194
+    assignment       go to state 54
+    if_statement     go to state 55
+    while_statement  go to state 56
+    for_statement    go to state 57
+    subprogram_call  go to state 58
+    io_statement     go to state 59
+
+
+State 182
+
+   89 while_statement: T_WHILE expression $@1 T_DO statement .
+
+    $default  reduce using rule 89 (while_statement)
+
+
+State 183
+
+   93 iter_space: expression T_DOWNTO . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 195
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 184
+
+   92 iter_space: expression T_TO . expression
+
+    T_LENGTH  shift, and go to state 27
+    T_ID      shift, and go to state 28
+    T_SCONST  shift, and go to state 29
+    T_ICONST  shift, and go to state 30
+    T_RCONST  shift, and go to state 31
+    T_BCONST  shift, and go to state 32
+    T_CCONST  shift, and go to state 33
+    T_ADDOP   shift, and go to state 34
+    T_NOTOP   shift, and go to state 35
+    T_LPAREN  shift, and go to state 36
+
+    expression  go to state 196
+    variable    go to state 38
+    constant    go to state 39
+
+
+State 185
+
+   91 for_statement: T_FOR T_ID T_ASSIGN iter_space $@2 . T_DO statement
+
+    T_DO  shift, and go to state 197
+
+
+State 186
+
+   98 read_list: read_list T_COMMA read_item .
+
+    $default  reduce using rule 98 (read_list)
+
+
+State 187
+
+  101 write_list: write_list T_COMMA write_item .
+
+    $default  reduce using rule 101 (write_list)
+
+
+State 188
+
+   36 dims: dims T_COMMA . limits
+
+    T_ID      shift, and go to state 170
+    T_BCONST  shift, and go to state 96
+    T_CCONST  shift, and go to state 97
+    T_ADDOP   shift, and go to state 98
+
+    $default  reduce using rule 46 (sign)
+
+    limits  go to state 198
+    limit   go to state 173
+    sign    go to state 102
+
+
+State 189
+
+   33 type_def: T_ARRAY T_LBRACK dims T_RBRACK . T_OF typename
+
+    T_OF  shift, and go to state 199
+
+
+State 190
+
+   38 limits: limit T_DOTDOT . limit
+
+    T_ID      shift, and go to state 95
+    T_BCONST  shift, and go to state 96
+    T_CCONST  shift, and go to state 97
+    T_ADDOP   shift, and go to state 98
+
+    $default  reduce using rule 46 (sign)
+
+    limit  go to state 200
+    sign   go to state 102
+
+
+State 191
+
+   56 variable_defs: variable_defs T_SEMI identifiers T_COLON typename .
+
+    $default  reduce using rule 56 (variable_defs)
+
+
+State 192
+
+   58 identifiers: identifiers . T_COMMA T_ID
+   69 parameter_list: parameter_list T_SEMI pass identifiers . T_COLON typename
+
+    T_COMMA  shift, and go to state 105
+    T_COLON  shift, and go to state 201
+
+
+State 193
+
+   70 parameter_list: pass identifiers T_COLON typename .
+
+    $default  reduce using rule 70 (parameter_list)
+
+
+State 194
+
+   86 if_statement: T_IF expression T_THEN statement T_ELSE statement .
+
+    $default  reduce using rule 86 (if_statement)
+
+
+State 195
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   93 iter_space: expression T_DOWNTO expression .
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 93 (iter_space)
+
+
+State 196
+
+    8 expression: expression . T_RELOP expression
+    9           | expression . T_EQU expression
+   10           | expression . T_OROP expression
+   11           | expression . T_ADDOP expression
+   12           | expression . T_MULDIVANDOP expression
+   92 iter_space: expression T_TO expression .
+
+    T_RELOP        shift, and go to state 73
+    T_ADDOP        shift, and go to state 74
+    T_OROP         shift, and go to state 75
+    T_MULDIVANDOP  shift, and go to state 76
+    T_EQU          shift, and go to state 77
+
+    $default  reduce using rule 92 (iter_space)
+
+
+State 197
+
+   91 for_statement: T_FOR T_ID T_ASSIGN iter_space $@2 T_DO . statement
+
+    error    shift, and go to state 43
+    T_BEGIN  shift, and go to state 19
+    T_IF     shift, and go to state 44
+    T_WHILE  shift, and go to state 45
+    T_FOR    shift, and go to state 46
+    T_READ   shift, and go to state 47
+    T_WRITE  shift, and go to state 48
+    T_ID     shift, and go to state 49
+
+    T_END   reduce using rule 83 (statement)
+    T_ELSE  reduce using rule 83 (statement)
+    T_SEMI  reduce using rule 83 (statement)
+
+    variable         go to state 50
+    comp_statement   go to state 51
+    statement        go to state 202
+    assignment       go to state 54
+    if_statement     go to state 55
+    while_statement  go to state 56
+    for_statement    go to state 57
+    subprogram_call  go to state 58
+    io_statement     go to state 59
+
+
+State 198
+
+   36 dims: dims T_COMMA limits .
+
+    $default  reduce using rule 36 (dims)
+
+
+State 199
+
+   33 type_def: T_ARRAY T_LBRACK dims T_RBRACK T_OF . typename
+
+    T_INTEGER  shift, and go to state 144
+    T_REAL     shift, and go to state 145
+    T_BOOLEAN  shift, and go to state 146
+    T_CHAR     shift, and go to state 147
+    T_STRING   shift, and go to state 148
+    T_ID       shift, and go to state 149
+
+    typename       go to state 203
+    standard_type  go to state 151
+
+
+State 200
+
+   38 limits: limit T_DOTDOT limit .
+
+    $default  reduce using rule 38 (limits)
+
+
+State 201
+
+   69 parameter_list: parameter_list T_SEMI pass identifiers T_COLON . typename
+
+    T_INTEGER  shift, and go to state 144
+    T_REAL     shift, and go to state 145
+    T_BOOLEAN  shift, and go to state 146
+    T_CHAR     shift, and go to state 147
+    T_STRING   shift, and go to state 148
+    T_ID       shift, and go to state 149
+
+    typename       go to state 204
+    standard_type  go to state 151
+
+
+State 202
+
+   91 for_statement: T_FOR T_ID T_ASSIGN iter_space $@2 T_DO statement .
+
+    $default  reduce using rule 91 (for_statement)
+
+
+State 203
+
+   33 type_def: T_ARRAY T_LBRACK dims T_RBRACK T_OF typename .
+
+    $default  reduce using rule 33 (type_def)
+
+
+State 204
+
+   69 parameter_list: parameter_list T_SEMI pass identifiers T_COLON typename .
+
+    $default  reduce using rule 69 (parameter_list)
